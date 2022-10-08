@@ -1,5 +1,5 @@
 [package]
-name = "Kinesis_Consumer"
+name = "kinesis_consumer"
 version = "0.1.0"
 edition = "2021"
 
@@ -16,10 +16,14 @@ time = "*"
 
 tokio = { version = "1.20.1", features = ["full"] }
 
-[dependencies.structopt]
-version = "0.3"
-default-features = false
+# Time crate of choice
+chrono = { version = "0.4.19", features = ["serde"] }
 
-[dependencies.tracing-subscriber]
-version = "0.3.15"
-features = ["env-filter"]
+# https://crates.io/crates/color-eyre
+color-eyre = "0.5"
+
+# For serializing, deserializing our request/response
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"
+
+kinesis_client = { version = "0.1.0", path = "./crates/kinesis_client"}
