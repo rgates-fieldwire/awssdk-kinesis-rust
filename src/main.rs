@@ -77,7 +77,10 @@ fn decode_events_from_record(record: Record) -> CustomResult<EventWrapper> {
             let result= serde_json::from_str(&String::from_utf8_lossy(&ut8_data));
             match result{
                 Ok(value) => return Ok(value),
-                Err(e) => return Err(BasicError.into())
+                Err(e) => {
+                    dbg!(e);
+                    return Err(BasicError.into())
+                } 
             }
         }
     }
@@ -104,11 +107,6 @@ async fn main() -> Result<()> {
     //let stream_dis = fetch_stream_description::execute(&client, DEFAULT_STREAM_NAME).await.unwrap();
 
     //dbg!(stream_dis);
-
-    //let current_time = chrono::offset::Local::now().to_string();
-    //let result = create_record::execute(&client, DEFAULT_STREAM_NAME, DEFAULT_PARTITION_KEY, &current_time).await.unwrap();
-
-    //dbg!(result);
     
     let mut iterator: String = fetch_shard_iterator::execute(&client, DEFAULT_STREAM_NAME, DEFAULT_SHARD_ID).await.unwrap();
 
@@ -116,22 +114,9 @@ async fn main() -> Result<()> {
 
     // display_records(resp.records());
 
-    let event = Event{
-        project_id: "Test".to_string(),
-        account_id: "Test 2".to_string(),
-        user_id: 0,
-        message: "foobar".to_string()
-    };
-
-    // dbg!(&event);
+    let event: Event = Default::default();
 
     let serialized = serde_json::to_string(&event).unwrap();
-
-    // dbg!(&serialized);
-
-    // let deserialized: Event = serde_json::from_str(&serialized).unwrap();
-
-    // dbg!(&deserialized);
 
     let ew: EventWrapper = EventWrapper{
         id: "Test Id".to_string(),
@@ -140,25 +125,22 @@ async fn main() -> Result<()> {
     };
 
     print!("{}", ew);
-    let sew = serde_json::to_string(&ew).unwrap();
+    // let sew = serde_json::to_string(&ew).unwrap();
 
-    // dbg!(&sew);
+    // let _result = ::execute(&client, DEFAULT_STREAM_NAME, DEFAULT_PARTITION_KEY, &sew).await.unwrap();
 
-    // let dew: EventWrapper = serde_json::from_str(&sew).unwrap();
-    
-    // dbg!(dew.event_json);
-
-
-    let _result = create_record::execute(&client, DEFAULT_STREAM_NAME, DEFAULT_PARTITION_KEY, &sew).await.unwrap();
-
-    dbg!(_result);
+    // dbg!(_result);
 
     iterator = fetch_shard_iterator::execute(&client, DEFAULT_STREAM_NAME, DEFAULT_SHARD_ID).await.unwrap();
     resp = fetch_records::execute(&client, &iterator).await.unwrap();
 
-     display_records(resp.records());
+     //display_records(resp.records());
     
-    let _unused = process_records(resp.records());
+    let events = process_records(resp.records()).unwrap();
+
+    for e in events{
+        print!("{} \n", e);
+    }
 
     Ok(())
 }

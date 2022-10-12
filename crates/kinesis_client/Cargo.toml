@@ -25,3 +25,5 @@ time = "*"
 tokio = { version = "1.20.1", features = ["full"] }
 
 simple-error = "*"
+
+rand = "*"
